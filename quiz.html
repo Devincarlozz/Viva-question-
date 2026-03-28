@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Viva MCQ Quiz</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(8px);
+            background-color: #f8fafc;
+            border-color: #6366f1;
+        }
+
+        .correct {
+            background-color: #ecfdf5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+
+        .wrong {
+            background-color: #fef2f2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake {
+            animation: shake 0.4s focus;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <!-- Progress bar container -->
+        <div class="h-2 bg-slate-200 w-full">
+            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <div class="p-8 sm:p-12">
+            <!-- Intro Screen -->
+            <div id="intro-screen" class="text-center">
+                <div class="mb-6 inline-block p-4 bg-indigo-100 rounded-2xl text-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Hardware Viva Quiz</h1>
+                <p class="text-slate-600 mb-8 leading-relaxed">
+                    Test your knowledge on computer components, BIOS settings, and motherboard architecture based on the provided hardware viva questions.
+                </p>
+                <button onclick="startQuiz()" class="w-full sm:w-auto px-10 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 uppercase tracking-widest">
+                    Start Quiz
+                </button>
+            </div>
+
+            <!-- Quiz Screen (Hidden by default) -->
+            <div id="quiz-screen" class="hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <span id="question-count" class="text-sm font-bold text-slate-400 uppercase tracking-widest">Question 1/25</span>
+                    <span id="score-badge" class="px-4 py-1 bg-amber-100 text-amber-700 text-sm font-bold rounded-full">Score: 0</span>
+                </div>
+
+                <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-800 mb-8 leading-snug">
+                    Question text goes here?
+                </h2>
+
+                <div id="options-grid" class="space-y-4">
+                    <!-- Options buttons will be injected here -->
+                </div>
+            </div>
+
+            <!-- Result Screen (Hidden by default) -->
+            <div id="result-screen" class="hidden text-center">
+                <div class="text-6xl mb-6">🏆</div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Quiz Finished!</h2>
+                <p id="final-result-text" class="text-lg text-slate-600 mb-8 font-medium"></p>
+                
+                <div class="bg-indigo-50 p-6 rounded-2xl mb-8 text-left">
+                    <h3 class="font-bold text-indigo-900 mb-2">Technical Summary:</h3>
+                    <ul class="text-sm text-indigo-700 space-y-1 list-disc pl-5">
+                        <li>BIOS is firmware stored in ROM chips.</li>
+                        <li>The ALU handles math and logic in the CPU.</li>
+                        <li>CMOS batteries keep system time when off.</li>
+                        <li>SATA ports connect storage like HDD/SSD.</li>
+                    </ul>
+                </div>
+
+                <button onclick="location.reload()" class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-colors">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "Which component is considered the 'brain' of the computer?",
+                options: ["Motherboard", "CPU", "RAM", "SMPS"],
+                correct: 1
+            },
+            {
+                q: "What are the three main parts of a CPU?",
+                options: ["BIOS, RAM, ROM", "HDD, SSD, RAM", "ALU, Control Unit, Registers", "Input, Output, Storage"],
+                correct: 2
+            },
+            {
+                q: "Which of the following is 'Volatile' primary memory?",
+                options: ["ROM", "Hard Disk", "Cache", "RAM"],
+                correct: 3
+            },
+            {
+                q: "Which memory is the fastest and sits closest to the CPU?",
+                options: ["RAM", "SSD", "Cache Memory", "Virtual Memory"],
+                correct: 2
+            },
+            {
+                q: "What is the primary function of the SMPS?",
+                options: ["To store data", "To convert AC power to DC", "To display graphics", "To control the mouse"],
+                correct: 1
+            },
+            {
+                q: "Where is the BIOS firmware stored on the motherboard?",
+                options: ["In the Hard Disk", "In a RAM chip", "In a ROM chip", "On the CMOS battery"],
+                correct: 2
+            },
+            {
+                q: "What component is used to store system date and time even when the PC is off?",
+                options: ["BIOS Chip", "SATA Port", "CMOS Battery", "PCIe Slot"],
+                correct: 2
+            },
+            {
+                q: "Which type of expansion slot is primarily used for modern graphics cards?",
+                options: ["PCIe x16", "PCIe x1", "SATA", "M.2"],
+                correct: 0
+            },
+            {
+                q: "What does POST stand for in the context of system booting?",
+                options: ["Power-on System Test", "Primary OS Startup Tool", "Power-on Self Test", "Process Of System Transfer"],
+                correct: 2
+            },
+            {
+                q: "Which is the modern replacement for the legacy BIOS?",
+                options: ["UHD", "UEFI", "SATA", "NTFS"],
+                correct: 1
+            },
+            {
+                q: "Which connector is used to provide the main 24-pin power to the motherboard?",
+                options: ["SATA", "HDMI", "ATX Power Connector", "VRM"],
+                correct: 2
+            },
+            {
+                q: "What prevents the CPU from overheating?",
+                options: ["CMOS Battery", "The Case Fan", "Heat Sink and Fan", "SMPS"],
+                correct: 2
+            },
+            {
+                q: "In Windows installation, which option is used for a 'fresh' or clean install?",
+                options: ["Upgrade", "Custom", "Repair", "Express"],
+                correct: 1
+            },
+            {
+                q: "What does the VRM (Voltage Regulator Module) do on a motherboard?",
+                options: ["Stores BIOS data", "Regulates CPU voltage", "Connects to the Internet", "Controls RAM speed"],
+                correct: 1
+            },
+            {
+                q: "A hard disk is divided into tracks, and tracks are divided into:",
+                options: ["Sectors", "Blocks", "Clusters", "Bytes"],
+                correct: 0
+            },
+            {
+                q: "What happens if the CMOS battery fails?",
+                options: ["Computer won't turn on", "Hard drive data is deleted", "System date and time reset", "RAM becomes ROM"],
+                correct: 2
+            },
+            {
+                q: "Which storage device is significantly faster because it has no moving parts?",
+                options: ["HDD", "DVD-ROM", "SSD", "Floppy Disk"],
+                correct: 2
+            },
+            {
+                q: "Which port is used specifically for high-definition digital audio and video output?",
+                options: ["VGA", "Serial Port", "USB", "HDMI"],
+                correct: 3
+            },
+            {
+                q: "What is the function of the BIOS during startup?",
+                options: ["Cleans the disk", "Initializes hardware and loads OS", "Encrypts data", "Installs drivers"],
+                correct: 1
+            },
+            {
+                q: "Which software bridge allows the Operating System to communicate with hardware?",
+                options: ["Firmware", "Device Driver", "Microcode", "Malware"],
+                correct: 1
+            },
+            {
+                q: "What does USB stand for?",
+                options: ["Universal System Bus", "Unified Serial Bridge", "Universal Serial Bus", "Unit System Board"],
+                correct: 2
+            },
+            {
+                q: "Which component is the main circuit board where all hardware connects?",
+                options: ["Chassis", "Motherboard", "CPU", "NIC"],
+                correct: 1
+            },
+            {
+                q: "How do you typically enter the BIOS setup during computer startup?",
+                options: ["Hold Shift+Enter", "Press a setup key (like F2 or DEL)", "Right-click the screen", "Wait for Windows to load"],
+                correct: 1
+            },
+            {
+                q: "Which motherboard form factor typically uses a 20-pin or 24-pin main power connector?",
+                options: ["AT", "ATX", "Mini-ITX", "Micro-ATX"],
+                correct: 1
+            },
+            {
+                q: "If you boot a PC and hear no beep and see no display, what is the first physical speaker check you should perform?",
+                options: ["Monitor volume", "System/Case speaker", "Windows audio settings", "Headphones"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let canAnswer = true;
+
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const progressBar = document.getElementById('progress-bar');
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const questionCountText = document.getElementById('question-count');
+        const scoreBadge = document.getElementById('score-badge');
+
+        function startQuiz() {
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const q = quizData[currentQuestion];
+            
+            // Set Progress
+            const progress = (currentQuestion / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Set Text
+            questionCountText.textContent = `Question ${currentQuestion + 1}/${quizData.length}`;
+            questionText.textContent = q.q;
+            
+            // Clear and Load Options
+            optionsGrid.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const button = document.createElement('button');
+                button.className = "option-btn w-full text-left p-5 rounded-2xl border-2 border-slate-200 font-semibold text-slate-700 flex justify-between items-center";
+                button.innerHTML = `<span>${opt}</span><span class="indicator hidden"></span>`;
+                button.onclick = () => selectOption(index, button);
+                optionsGrid.appendChild(button);
+            });
+
+            // Animate in
+            optionsGrid.classList.remove('fade-in');
+            void optionsGrid.offsetWidth; // Trigger reflow
+            optionsGrid.classList.add('fade-in');
+        }
+
+        function selectOption(index, btn) {
+            if (!canAnswer) return;
+            canAnswer = false;
+
+            const correctIndex = quizData[currentQuestion].correct;
+            const buttons = optionsGrid.querySelectorAll('button');
+
+            if (index === correctIndex) {
+                btn.classList.add('correct');
+                score++;
+                scoreBadge.textContent = `Score: ${score}`;
+            } else {
+                btn.classList.add('wrong');
+                buttons[correctIndex].classList.add('correct');
+            }
+
+            // Disable all buttons
+            buttons.forEach(b => b.disabled = true);
+
+            // Move to next after delay
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1200);
+        }
+
+        function showResults() {
+            progressBar.style.width = "100%";
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const finalScorePercent = Math.round((score / quizData.length) * 100);
+            let message = "";
+            
+            if (finalScorePercent >= 80) message = "Excellent! You are a Hardware Expert.";
+            else if (finalScorePercent >= 50) message = "Good job! You have a solid understanding.";
+            else message = "Keep studying! Review the basics of Motherboards and BIOS.";
+
+            document.getElementById('final-result-text').textContent = 
+                `You scored ${score} out of ${quizData.length} (${finalScorePercent}%). ${message}`;
+        }
+    </script>
+</body>
+</html>
+
